@@ -278,8 +278,6 @@ void Function::comput_succ_pred_BB(){
   int size = (int) _myBB.size();
    
   for (auto bb: _myBB){ // parcours tous les BB de _myBB
-    Instruction *instr;
-    Basic_block *succ=nullptr;
     
     if(bb->get_branch() == nullptr && bb->get_index() < size-1){
     	bb->set_link_succ_pred(get_BB(bb->get_index()+1));
@@ -321,8 +319,64 @@ void Function::compute_dom(){
 
   list<Basic_block*> workinglist; // liste de travail  
   bool change = true;  // pour it�rer tant que pas de point fixe
- 
-  /* A REMPLIR */
+
+  int sz = nbr_BB();
+  for (auto bb: _myBB){
+	  if(bb->get_nb_pred() == 0){
+		  workinglist.push_back(bb);
+	  }
+  }
+
+  while(workinglist.size() != 0){
+	  Basic_block *bb = workinglist.front();
+	  cout << " BB" << bb->get_index() <<endl;
+	  workinglist.pop_front();
+
+	  change = false;
+
+	  if(!(bb->Domin[bb->get_index()])){
+		  bb->Domin[bb->get_index()] = true;
+		  change = true;
+	  }
+	  for(int j=0; j<sz; j++){
+		  if(j == bb->get_index()) continue;
+		  bool domin = true;
+		  auto bbDom = get_BB(j);
+		  cout << "bbDom " << bbDom->get_index() << endl;
+		  int i;
+		  for(i=0; i<bb->get_nb_pred(); i++){
+			  int idpred = bb->get_predecessor(i)->get_index();
+			  cout << "pred " << idpred << endl;
+			  domin = domin && bbDom->Domin[idpred];
+			  if(!domin) break;
+		  }
+
+		  if(!domin || i==0){
+			  if(bb->Domin[j]) change = true;
+			  bb->Domin[j] = false;
+		  }
+		  else{
+			  cout << "bb " << get_BB(j)->get_index() << " domine " << bb->get_index() << endl;
+
+			  if(!bb->Domin[j]) change = true;
+			  bb->Domin[j] = true;
+		  }
+		  /*
+		  if(i>0 && domin){
+			  bb->Domin[j] = true;
+			  change = true;
+		  }
+		  else{
+			  bb->Domin[j] = false;
+		  }*/
+
+	  }
+	  if (change){
+		  for(int i=0; i<bb->get_nb_succ(); i++){
+			  workinglist.push_back(bb->get_successor(i));
+		  }
+	  }
+  }
  
 
   // affichage du resultat
