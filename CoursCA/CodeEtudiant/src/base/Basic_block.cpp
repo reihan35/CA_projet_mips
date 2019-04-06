@@ -29,7 +29,7 @@ Basic_block::Basic_block():
   LiveIn(vector<bool>(NB_REG, false)),
   LiveOut(vector<bool>(NB_REG, false)), 
   DefLiveOut(vector<int>(NB_REG, -1)), 
-  Domin(vector<bool>(NB_MAX_BB, false)){
+  Domin(vector<bool>(NB_MAX_BB, true)){
    _head = nullptr;
    _end = nullptr;
    _branch = nullptr;

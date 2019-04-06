@@ -329,47 +329,36 @@ void Function::compute_dom(){
 
   while(workinglist.size() != 0){
 	  Basic_block *bb = workinglist.front();
-	  cout << " BB" << bb->get_index() <<endl;
+	  int bb_i = bb->get_index();
 	  workinglist.pop_front();
 
 	  change = false;
 
-	  if(!(bb->Domin[bb->get_index()])){
-		  bb->Domin[bb->get_index()] = true;
-		  change = true;
-	  }
 	  for(int j=0; j<sz; j++){
-		  if(j == bb->get_index()) continue;
+		  if(j==bb_i) continue;
 		  bool domin = true;
 		  auto bbDom = get_BB(j);
-		  cout << "bbDom " << bbDom->get_index() << endl;
+		  auto bbDom_j = bbDom->get_index();
 		  int i;
 		  for(i=0; i<bb->get_nb_pred(); i++){
 			  int idpred = bb->get_predecessor(i)->get_index();
-			  cout << "pred " << idpred << endl;
-			  domin = domin && bbDom->Domin[idpred];
+			  domin = domin && get_BB(idpred)->Domin[bbDom_j];
 			  if(!domin) break;
 		  }
-
-		  if(!domin || i==0){
+		  if(i==0){
 			  if(bb->Domin[j]) change = true;
 			  bb->Domin[j] = false;
 		  }
 		  else{
-			  cout << "bb " << get_BB(j)->get_index() << " domine " << bb->get_index() << endl;
-
-			  if(!bb->Domin[j]) change = true;
-			  bb->Domin[j] = true;
+			  if(!domin){
+				  if(bb->Domin[j]) change = true;
+				  bb->Domin[j] = false;
+			  }
+			  else{
+				  if(!bb->Domin[j]) change = true;
+				  bb->Domin[j] = true;
+			  }
 		  }
-		  /*
-		  if(i>0 && domin){
-			  bb->Domin[j] = true;
-			  change = true;
-		  }
-		  else{
-			  bb->Domin[j] = false;
-		  }*/
-
 	  }
 	  if (change){
 		  for(int i=0; i<bb->get_nb_succ(); i++){
@@ -403,8 +392,15 @@ void Function::compute_loops(){
   if (!dom_computed)
     compute_dom();
 
-
-  /* A REMPLIR */
+  for(auto bb: _myBB){
+	  int bb_i = bb->get_index();
+	  for(int i=0; i<bb->get_nb_succ(); i++){
+		  auto bbSucc = bb->get_successor(i);
+		  if (bb->Domin[bbSucc->get_index()]){
+			  _myLoop.push_back(new Loop(bbSucc, bb));
+		  }
+	  }
+  }
 
   return;
 }
