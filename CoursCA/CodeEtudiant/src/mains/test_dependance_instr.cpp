@@ -11,7 +11,7 @@ int main(int argc, char * argv[]){
 	  cout << "erreur : pas de fichier assembleur" << endl;
 	}	  	
 
-	// récupère le nom du fichier dans le chemin entrée et sans extension
+	// rï¿½cupï¿½re le nom du fichier dans le chemin entrï¿½e et sans extension
 	std::string argv1(argv[1]);	
 	
 	size_t debut = argv1.find_last_of("/");
@@ -62,17 +62,17 @@ int main(int argc, char * argv[]){
 	     //affichage du BB
 	     bb->display();
 	 
-	     //calcul des liens de dépendances entre les instructions du BB
+	     //calcul des liens de dï¿½pendances entre les instructions du BB
 	     bb->comput_pred_succ_dep();
 	 
-	     // montre les dépendances entre les instructions du BB
+	     // montre les dï¿½pendances entre les instructions du BB
 	     bb-> show_succ_dep();
 
-	     // creation du DAG de dépendance associé au BB
+	     // creation du DAG de dï¿½pendance associï¿½ au BB
 	     Dfg* d = new Dfg(bb);
 
 	     // export du DAG en fichier .dot permettant de visualiser 
-	     // attention s'il y a des erreurs dans le calcul des dépendances celui-ci ne sera pas visualisable 
+	     // attention s'il y a des erreurs dans le calcul des dï¿½pendances celui-ci ne sera pas visualisable 
 	     string name_f_dfg1 = "./tmp/" + name + "_func_" + std::to_string(i) + "_dfg_bb" + std::to_string(bb->get_index()) + ".dot";
 	     d->restitute(nullptr, name_f_dfg1, true);
 	     

@@ -352,16 +352,21 @@ void add_dep_link(Instruction *pred, Instruction* succ, t_Dep type){
 
 /* utiliser la fonction add_dep_link ci-dessus qui ajoute � la liste des d�pendances pred et succ une dependance entre 2 instructions */
 
-
 void Basic_block::comput_pred_succ_dep(){
-   
   link_instructions(); // essentiel pour avoir un lien entre les instructions
    if (dep_done) return;
-  
    /* A REMPLIR */
-
- 
-
+   for (int i = 0;i < get_nb_inst()-1 ;i++){
+     Instruction* instr1 = get_instruction_at_index(i);
+     for(int j = i-1 ; j <  get_nb_inst()-1  ; j++){
+        Instruction* instr2 = get_instruction_at_index(j); 
+        t_Dep dep = instr1->is_dependant(instr2); 
+        if (dep != t_Dep::NONE && instr1!=instr2){ 
+          add_dep_link(instr1,instr2,dep);
+        }
+       }
+     }
+   
    // FIN A REMPLIR
 
    // NE PAS ENLEVER : cette fonction ne doit �tre appel�e qu'une seule fois
