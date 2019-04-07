@@ -365,7 +365,16 @@ void Basic_block::comput_pred_succ_dep(){
           add_dep_link(instr1,instr2,dep);
         }
        }
-     }
+    }
+    
+    for(int i=0;i < get_nb_inst() - 1 ; i++){
+      Instruction* instr1 = get_instruction_at_index(i);
+      if (instr1->get_nb_succ()==0 && i!=get_nb_inst()-1){
+        if ((get_instruction_at_index(get_nb_inst() - 2))->get_type() == t_Inst::BR){
+          add_dep_link(instr1,get_instruction_at_index(get_nb_inst() - 2),t_Dep::CONTROL);
+        }
+      }
+    }
    
    // FIN A REMPLIR
 
