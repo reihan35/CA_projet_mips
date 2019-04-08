@@ -423,23 +423,23 @@ int Basic_block::nb_cycles(){
    for (int i=0; i< get_nb_inst(); i++ ){
      inst_cycle[i] = -1;
    }
-   
+   int max = -1;
    Instruction *ic=get_first_instruction();
    int exect = 0;  
-   while(ic){   
+   while(ic){ 
+    for(int i = 0; i < ic->get_nb_pred(); i++){
+      inst_cycle[(ic->get_pred_dep(i)->inst)->get_index()] = inst_cycle[ic->get_index()] + delai(ic->get_type(),(ic->get_pred_dep(i)->inst)->get_type());
+      if (inst_cycle[(ic->get_pred_dep(i)->inst)->get_index()] > max){
+        inst_cycle[ic->get_index()] = inst_cycle[(ic->get_pred_dep(i)->inst)->get_index()];
+      }
+      cout << endl << " - inst " << (ic -> get_pred_dep(i)->inst -> get_index()) << " cycle "<<  inst_cycle[ic->get_index()] ;
 
-     // A REMPLIR 
-  
-
-
-     
-    
-     //FIN A REMPLIR 
-#ifdef DEBUG     
-      cout << endl << "inst " << ic -> get_index() << " " << ic-> get_content () << " cycle "<<  inst_cycle[ic->get_index()] ;
-#endif 
+    } 
+     //FIN A REMPLIR     
+    cout << endl << "inst " << ic -> get_index() << " " << ic-> get_content () << " cycle "<<  inst_cycle[ic->get_index()] ;
      ic = ic->get_next();
    }
+   exect = inst_cycle[get_first_instruction()->get_index()];
 
 #ifdef DEBUG  
     cout << endl;
