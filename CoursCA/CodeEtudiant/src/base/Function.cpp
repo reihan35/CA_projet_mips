@@ -199,6 +199,7 @@ void Function::comput_basic_block(){
     string inst;
 
     while(current != _end){
+    	cout<<current<<endl;
     	if(current->isLabel()){
     		if(debut_block != nullptr){
     			add_BB(debut_block, current->get_prev(), nullptr, cpt_block);
@@ -207,6 +208,7 @@ void Function::comput_basic_block(){
 			debut_block = current;
 
     	}
+
     	if(current->isInst()){
     		if(debut_block == nullptr){
     			debut_block = current;
@@ -232,6 +234,7 @@ void Function::comput_basic_block(){
   
   // calcul effectu�, ne pas toucher ci-dessous
   BB_computed = true;
+
   return;
 }
 

@@ -356,20 +356,37 @@ void Basic_block::comput_pred_succ_dep(){
   link_instructions(); // essentiel pour avoir un lien entre les instructions
    if (dep_done) return;
    /* A REMPLIR */
-   for (int i = 0;i < get_nb_inst()-1 ;i++){
-     Instruction* instr1 = get_instruction_at_index(i);
-     for(int j = i-1 ; j <  get_nb_inst()-1  ; j++){
+   for (int i = get_nb_inst()-1 ;i >= 0 ;i--){
+	   bool is_dep_raw1 = false;
+	   bool is_dep_raw2 = false;
+	   bool is_waw = false;
+	   Instruction* instr1 = get_instruction_at_index(i);
+	   for(int j = i-1 ; j>=0 ; j--){
         Instruction* instr2 = get_instruction_at_index(j); 
-        t_Dep dep = instr1->is_dependant(instr2); 
-        if (dep != t_Dep::NONE && instr1!=instr2){ 
-          add_dep_link(instr1,instr2,dep);
+        if(!is_dep_raw1 && instr2->is_dep_RAW1(instr1)){
+            add_dep_link(instr2,instr1,t_Dep::RAW);
+            is_dep_raw1 = true;
+        }
+        if(!is_dep_raw2 && instr2->is_dep_RAW2(instr1)){
+            add_dep_link(instr2,instr1,t_Dep::RAW);
+            is_dep_raw2 = true;
+        }
+        if(!is_waw && instr2->is_dep_WAR(instr1)){
+            add_dep_link(instr2,instr1,t_Dep::WAR);
+        }
+        if(!is_waw && instr2->is_dep_WAW(instr1)){
+            add_dep_link(instr2,instr1,t_Dep::WAW);
+            is_waw = true;
+        }
+        if(instr2->is_dep_MEM(instr1)) {
+        	add_dep_link(instr2,instr1,t_Dep::MEMDEP);
         }
        }
     }
-    
+
     for(int i=0;i < get_nb_inst() - 1 ; i++){
       Instruction* instr1 = get_instruction_at_index(i);
-      if (instr1->get_nb_succ()==0 && i!=get_nb_inst()-1){
+      if (instr1->get_nb_succ()==0 && instr1->get_type() != t_Inst::BR){
         if ((get_instruction_at_index(get_nb_inst() - 2))->get_type() == t_Inst::BR){
           add_dep_link(instr1,get_instruction_at_index(get_nb_inst() - 2),t_Dep::CONTROL);
         }
@@ -423,23 +440,31 @@ int Basic_block::nb_cycles(){
    for (int i=0; i< get_nb_inst(); i++ ){
      inst_cycle[i] = -1;
    }
-   int max = -1;
    Instruction *ic=get_first_instruction();
    int exect = 0;  
    while(ic){ 
-    for(int i = 0; i < ic->get_nb_pred(); i++){
-      inst_cycle[(ic->get_pred_dep(i)->inst)->get_index()] = inst_cycle[ic->get_index()] + delai(ic->get_type(),(ic->get_pred_dep(i)->inst)->get_type());
-      if (inst_cycle[(ic->get_pred_dep(i)->inst)->get_index()] > max){
-        inst_cycle[ic->get_index()] = inst_cycle[(ic->get_pred_dep(i)->inst)->get_index()];
-      }
-      cout << endl << " - inst " << (ic -> get_pred_dep(i)->inst -> get_index()) << " cycle "<<  inst_cycle[ic->get_index()] ;
+	   int i_instr = ic->get_index();
+		for(int i = 0; i < ic->get_nb_pred(); i++){
+			int i_pred = (ic->get_pred_dep(i)->inst)->get_index();
+			int new_val = inst_cycle[i_pred] + delai((ic->get_pred_dep(i)->inst)->get_type(),ic->get_type());
+			/*= inst_cycle[i_instr] + delai(ic->get_type(),(ic->get_pred_dep(i)->inst)->get_type());
+			if (inst_cycle[i_pred] > max){
+				inst_cycle[ic->get_index()] = inst_cycle[i_pred];
+				max = inst_cycle[i_pred];
+			}*/
+			if(new_val>inst_cycle[i_instr]){
+				inst_cycle[i_instr] = new_val;
+			}
+		}
+		if(inst_cycle[i_instr-1]+1>inst_cycle[i_instr]){
+			inst_cycle[i_instr] = inst_cycle[i_instr-1]+1;
+		}
 
-    } 
-     //FIN A REMPLIR     
-    cout << endl << "inst " << ic -> get_index() << " " << ic-> get_content () << " cycle "<<  inst_cycle[ic->get_index()] ;
+     cout << endl << "inst " << ic -> get_index() << " " << ic-> get_content () << " cycle "<<  inst_cycle[ic->get_index()] <<endl;
      ic = ic->get_next();
-   }
-   exect = inst_cycle[get_first_instruction()->get_index()];
+
+	}
+   exect = inst_cycle[get_last_instruction()->get_index()];
 
 #ifdef DEBUG  
     cout << endl;

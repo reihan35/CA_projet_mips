@@ -44,7 +44,6 @@ int main(int argc, char * argv[]){
 	  functmp->comput_succ_pred_BB();
 	  
 	  // production d'un fichier .dot pour le CFG de la fonction
-	  
 	  string name_f_cfg = "./tmp/" + name + "_cfg_func_" + std::to_string(i) +".dot";
 	  Cfg *c = new Cfg(functmp->get_BB(0), functmp->nbr_BB());
 	  c->restitution(nullptr, name_f_cfg);
