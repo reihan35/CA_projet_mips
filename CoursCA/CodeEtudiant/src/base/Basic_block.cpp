@@ -488,11 +488,53 @@ Un appel de fonction (call) �crit aussi l'adresse de retour dans $31 donc d�
 
 void Basic_block::compute_use_def(void){
   if (use_def_done) return;
- 
+  vector<int> visited(37); 
+   for (int i=0; i< 37; i++ ){
+     visited[i] = -1;
+   }
+
   /* A REMPLIR */
- 
+  Instruction *ic=get_first_instruction();
+  while(ic){ 
+    OPRegister* op1 = ic -> get_reg_src1();
+    OPRegister* op2 = ic -> get_reg_src2();
+    OPRegister* op3 = ic -> get_reg_dst();
 
+    if(ic->get_opcode() == t_Operator::jal){
+      int num_reg_src1 = 2;
+      int num_reg_src2 = 31;
+      
+      if(!Def[num_reg_src1]){
+        Use[num_reg_src1] = true;
+      }
+      if(!Def[num_reg_src2]){
+        Use[num_reg_src2] = true;
+      }
 
+    }
+    
+    if (op3){
+      int num_reg_dst = op3->get_reg_num();
+      if(!Def[num_reg_dst]){
+        Def[num_reg_dst] = true;
+      }
+    }
+
+    if (op1){
+      int num_reg_src1 = op1->get_reg_num();
+      if(!Def[num_reg_src1]){
+        Use[num_reg_src1] = true;
+      }
+    }
+    if (op2){
+      int num_reg_src2 = op2->get_reg_num();
+      if(!Def[num_reg_src2]){
+        Use[num_reg_src2] = true;
+      }
+    }
+
+    ic = ic->get_next();
+  }
   /* FIN A REMPLIR */
     return;
 }
