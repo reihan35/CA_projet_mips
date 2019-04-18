@@ -180,7 +180,6 @@ void Function::add_BB(Line *debut, Line* fin, Line *br, int index){
 
 // Pour cr�er un bloc il est conseiller d'utiliser la fonction addBB ci-dessus qui cr�e un BB et l'ajoute � la liste des BB de la fonction 
 void Function::comput_basic_block(){
-  
   bool verbose = false;  // passer � false pour moins d'affichage 
   if (verbose){
     cout << "comput BB" <<endl;
@@ -199,7 +198,6 @@ void Function::comput_basic_block(){
     string inst;
 
     while(current != _end){
-    	cout<<current<<endl;
     	if(current->isLabel()){
     		if(debut_block != nullptr){
     			add_BB(debut_block, current->get_prev(), nullptr, cpt_block);
@@ -223,6 +221,10 @@ void Function::comput_basic_block(){
     		}
        }
     	current = current->get_next();
+    }
+
+    if(debut_block != nullptr){
+    	add_BB(debut_block, current, nullptr, cpt_block);
     }
   
   // FIN A REMPLIR 
@@ -281,8 +283,8 @@ void Function::comput_succ_pred_BB(){
   int size = (int) _myBB.size();
    
   for (auto bb: _myBB){ // parcours tous les BB de _myBB
-    
-    if(bb->get_branch() == nullptr && bb->get_index() < size-1){
+	 if(bb->get_index() == size - 1) break;
+    if(bb->get_branch() == nullptr){
     	bb->set_link_succ_pred(get_BB(bb->get_index()+1));
     }
     else {
@@ -419,12 +421,58 @@ void Function::display_loops(){
 void Function::compute_live_var(){
  
   list<Basic_block*> workinglist;
-  bool change = true;
  
+   for(auto bb: _myBB){
+	   bb->compute_use_def();
+   }
    
+   for(auto bb: _myBB){
+	   bb->computeLiveInLiveOut = true;
+	   for(int i = 0; i < NB_REG; i++){
+		   bb->LiveOut[i] = false;
+		   bb->LiveIn[i] = false;
+	   }
+   }
+   workinglist.push_back(_myBB.back());
+   auto bb = workinglist.front();
+   bb->LiveOut[2] = true;
+   bb->LiveOut[31] = true;
+
+
+   while(workinglist.size() != 0){
+
+	   bb = workinglist.front();
+	   workinglist.pop_front();
+
+	   bool hasChanged = false;
+	   for(int j = 0; j < bb->get_nb_succ(); j++){
+		   auto bb_succ = bb->get_successor(j);
+		   for(int k = 0; k < NB_REG; k++){
+			   if(bb_succ->LiveIn[k] && !bb->LiveOut[k]){
+				   bb->LiveOut[k] = true;
+				   hasChanged = true;
+			   }
+		   }
+	   }
+	   for(int k = 0; k < NB_REG; k++){
+		   bool LiveIn_k_atPre = bb->LiveIn[k];
+		   bb->LiveIn[k] = (bb->LiveOut[k] && !bb->Def[k]) || bb->Use[k];
+		   if(LiveIn_k_atPre != bb->LiveIn[k]){
+			   hasChanged = true;
+		   }
+	   }
+	   if(hasChanged){
+		   for(int j = 0; j < bb->get_nb_pred(); j++){
+			   auto bb_pred = bb->get_predecessor(j);
+			   workinglist.push_back(bb_pred);
+		   }
+	   }
+   }
 
   /* A REMPLIR avec algo vu en cours et en TD*/
- /* algorithme it�ratif qui part des blocs sans successeur, ne pas oublier que lorsque l'on sort d'une fonction le registre $2 contient le r�sultat (il est donc vivant), le registre pointeur de pile ($29) est aussi vivant ! */
+ /* algorithme it�ratif qui part des blocs sans successeur,
+  * ne pas oublier que lorsque l'on sort d'une fonction le registre $2
+  * contient le r�sultat (il est donc vivant), le registre pointeur de pile ($29) est aussi vivant ! */
 
 
  

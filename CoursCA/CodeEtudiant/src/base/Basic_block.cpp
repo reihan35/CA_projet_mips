@@ -282,9 +282,9 @@ void Basic_block::link_instructions(){
 //Calcul des successeurs
    while(current != _end){
    
-      while(!next->isInst()){
-	 next=next->get_next();
-	 if(next==_end){
+     while(!next->isInst()){
+
+	  if(next==_end){
 	    if(next->isInst())
 	       break;
 	    else{
@@ -292,8 +292,9 @@ void Basic_block::link_instructions(){
 	       _nb_instr = index;
 	       return;
 	    }
-	 }
-      }
+		}
+	  next=next->get_next();
+    }
       
       i2 = getInst(next);
       i2->set_index(index);
@@ -501,24 +502,16 @@ void Basic_block::compute_use_def(void){
     OPRegister* op3 = ic -> get_reg_dst();
 
     if(ic->get_opcode() == t_Operator::jal){
-      int num_reg_src1 = 2;
-      int num_reg_src2 = 31;
-      
-      if(!Def[num_reg_src1]){
-        Use[num_reg_src1] = true;
-      }
-      if(!Def[num_reg_src2]){
-        Use[num_reg_src2] = true;
-      }
+      cout<<Def[2]<<endl;
+      Use[2] = Use[2] || !Def[2];
+      Use[31] = Use[31] || !Def[31];
+      Use[4] = Use[4] || !Def[4];
+      Use[5] = Use[5] || !Def[5];
+      Use[6] = Use[6] || !Def[6];
+      Use[7] = Use[7] || !Def[7];
 
     }
     
-    if (op3){
-      int num_reg_dst = op3->get_reg_num();
-      if(!Def[num_reg_dst]){
-        Def[num_reg_dst] = true;
-      }
-    }
 
     if (op1){
       int num_reg_src1 = op1->get_reg_num();
@@ -533,8 +526,17 @@ void Basic_block::compute_use_def(void){
       }
     }
 
+    if (op3){
+      int num_reg_dst = op3->get_reg_num();
+      if(!Def[num_reg_dst]){
+        Def[num_reg_dst] = true;
+      }
+    }
+
+
     ic = ic->get_next();
   }
+
   /* FIN A REMPLIR */
     return;
 }
@@ -563,10 +565,14 @@ DefLiveOut[i] vaut l'index de l'instruction du bloc qui d�finit $i si $i vivan
 Si $i est d�fini plusieurs fois c'est l'instruction avec l'index le plus grand
 *****/
 void Basic_block::compute_def_liveout(){
-  
- 
   /* A REMPLIR */
-
+  for (int i = get_nb_inst()-1 ;i >= 0 ;i--){
+	  Instruction* instr1 = get_instruction_at_index(i);
+	  OPRegister* op3 = instr1 -> get_reg_dst();
+	  if(Def[op3->get_reg_num()] && LiveOut[op3->get_reg_num()] && DefLiveOut[op3->get_reg_num()] != -1){
+		  DefLiveOut[op3->get_reg_num()] = i;
+	  }
+  }
  
 
 
