@@ -427,7 +427,7 @@ void Function::compute_live_var(){
    }
    
    for(auto bb: _myBB){
-	   bb->computeLiveInLiveOut = true;
+	  // bb->computeLiveInLiveOut = true;
 	   for(int i = 0; i < NB_REG; i++){
 		   bb->LiveOut[i] = false;
 		   bb->LiveIn[i] = false;

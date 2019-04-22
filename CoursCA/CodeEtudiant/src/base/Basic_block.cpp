@@ -1,4 +1,4 @@
-#include <Basic_block.h>
+  #include <Basic_block.h>
 
 
 
@@ -566,11 +566,12 @@ Si $i est d�fini plusieurs fois c'est l'instruction avec l'index le plus grand
 *****/
 void Basic_block::compute_def_liveout(){
   /* A REMPLIR */
+   cout << get_nb_inst()-1 <<endl ;
   for (int i = get_nb_inst()-1 ;i >= 0 ;i--){
 	  Instruction* instr1 = get_instruction_at_index(i);
 	  OPRegister* op3 = instr1 -> get_reg_dst();
-	  if(Def[op3->get_reg_num()] && LiveOut[op3->get_reg_num()] && DefLiveOut[op3->get_reg_num()] != -1){
-		  DefLiveOut[op3->get_reg_num()] = i;
+	  if(op3 && Def[op3->get_reg_num()] && LiveOut[op3->get_reg_num()] && DefLiveOut[op3->get_reg_num()] == -1){
+      DefLiveOut[op3->get_reg_num()] = i;
 	  }
   }
  
