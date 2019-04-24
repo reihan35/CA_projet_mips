@@ -606,7 +606,7 @@ void Basic_block::reg_rename(list<int> *frees){
    }
   /* A REMPLIR */
   for(int i=0; i<NB_REG; i++){ //On trouve les renommables
-    if ((Def[i] || Use[i] )&& DefLiveOut[i] == -1){ //il y a un doute ici : à la fois def et use ou l'un des deux suffit ? 
+    if ( Def[i] && DefLiveOut[i] == -1){ //il y a un doute ici : à la fois def et use ou l'un des deux suffit ? 
       cout <<"registre n°"<< i << " " <<Def[i] <<" "<< Use[i] << " "<<DefLiveOut[i] <<endl;
       n[i] = -2;
     }
@@ -615,9 +615,11 @@ void Basic_block::reg_rename(list<int> *frees){
   vector<int> frees2;        
   copy(frees->begin(),frees->end(),back_inserter(frees2)); //Convertir liste en vector
 
+  int z = 0;
   for(int i=0; i<NB_REG; i++){ //Changer le numero des renommable dans n
     if(n[i]==-2){
-      n[i] = frees2[i];
+      n[i] = frees2[z];
+      z++;
     }
   }
 
@@ -638,30 +640,6 @@ void Basic_block::reg_rename(list<int> *frees){
 	  }
 
   }
-  
-  /*
-  int nb = 0;
-   for (int i = get_nb_inst()-1 ;i >= 0 ;i--){
-	  Instruction* instr1 = get_instruction_at_index(i);
-	  OPRegister* op3 = instr1 -> get_reg_dst();
-    OPRegister* op2 = instr1 -> get_reg_src1();
-    OPRegister* op1 = instr1 -> get_reg_src2();
-	  if(op3 && Def[op3->get_reg_num()] && Use[op3->get_reg_num()] && DefLiveOut[op3->get_reg_num()] == -1){
-      int i = frees->front();
-      op3->set_reg_num(i);
-	  }
-    if(op2 && Def[op2->get_reg_num()] && Use[op2->get_reg_num()] && DefLiveOut[op2->get_reg_num()] == -1){
-      op2->set_reg_num(frees[nb]);
-	  }
-
-    if(op1 && Def[op1->get_reg_num()] && Use[op1->get_reg_num()] && DefLiveOut[op1->get_reg_num()] == -1){
-      op1->set_reg_num(frees[nb]);
-	  }
-
-    nb++;
-  }*/
-
-
   /* FIN A REMPLIR */
 
  
@@ -680,7 +658,12 @@ void Basic_block::reg_rename(){
  
    /* A REMPLIR */
 
-
+  for(int i=0; i<NB_REG; i++){ //On trouve les utilisables pour renommer : un registre mort en entrée de bb et n’apparaissant pas dans def(bb)
+    if (!LiveIn[i] && !Def[i]){  //Ces registres sont censé etre utilisé dans le bloc ? 
+	    free_regs.push_back(i);
+    }
+  } 
+  reg_rename(&free_regs);
 
   /* FIN A REMPLIR */
 
