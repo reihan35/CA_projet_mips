@@ -11,7 +11,7 @@ int main(int argc, char * argv[]){
 	  cout << "erreur : pas de fichier assembleur" << endl;
 	}	  	
 
-	// récupère le nom du fichier dans le chemin entrée et sans extension
+	// rï¿½cupï¿½re le nom du fichier dans le chemin entrï¿½e et sans extension
 	std::string argv1(argv[1]);	
 	
 	size_t debut = argv1.find_last_of("/");
@@ -53,7 +53,7 @@ int main(int argc, char * argv[]){
 	  c->restitution(nullptr, name_f_cfg);
 	 
   	   
-	   // calcul des registres vivants en entrée et sortie des BB
+	   // calcul des registres vivants en entrï¿½e et sortie des BB
 	   functmp ->compute_live_var();
 	   
 	   // iteration sur tous les BB du CFG
@@ -65,10 +65,10 @@ int main(int argc, char * argv[]){
 	     //affichage du BB
 	     bb->display();
 
-	     //calcul des liens de dépendances entre les instructions du BB
+	     //calcul des liens de dï¿½pendances entre les instructions du BB
 	     bb->comput_pred_succ_dep();
 
-	     // creation du DAG de dépendance associé au BB
+	     // creation du DAG de dï¿½pendance associï¿½ au BB
 	     Dfg* d = new Dfg(bb);
 	     string name_f_dfg1 = "./tmp/" + name + "_func_" + std::to_string(i) + "_dfg_bb" + std::to_string(bb->get_index()) + ".dot";
 	     d->restitute(nullptr, name_f_dfg1, true);
@@ -76,34 +76,34 @@ int main(int argc, char * argv[]){
 	     /**************** RENOMMAGE DE REGISTRE ****************/ 
 
 	     // liste de registres pour le renommage
-	     // avec des registres passéees en paramètre 
-	     /*
+	     // avec des registres passï¿½ees en paramï¿½tre 
+	     
 	      
 	       list<int> frees;
 	       for(int k=32; k<64; k++){
 	       frees.push_back(k);
 	       }
-	     */
+	     
 	     
 	     /* renommage en utilisant des registres n'existant pas */
 	      
-	     //  bb->reg_rename(&frees);
+	      bb->reg_rename(&frees);
 	     
 	     /* renommage utilisant les registres disponibles dans le bloc */
 	     /*  ne pas faire les 2 */
-	     /* il faut recalculer les informations de vivacité et de def-use 
-		pour pouvoir le faire 2 fois de suite !!
-	     */
+	     /* il faut recalculer les informations de vivacitï¿½ et de def-use 
+		pour pouvoir le faire 2 fois de suite !!*/
+	     
 
-	     bb->reg_rename();
+	    // bb->reg_rename();
 	     cout<<"----- apres renommage ------"<<endl;
 	     bb->display();
 	     
-	     // mise à 0 des dépendances pour les recalculer 
+	     // mise ï¿½ 0 des dï¿½pendances pour les recalculer 
 	     bb->reset_pred_succ_dep();
 	     bb->comput_pred_succ_dep();
 
-	     // creation du DAG de dépendance associé au BB renommé 
+	     // creation du DAG de dï¿½pendance associï¿½ au BB renommï¿½ 
 	     // permet de verifier que le calcul des dependances entre instruction marche bien et de comparer les DAG
 	     d = new Dfg(bb);
 	     string name_f_dfg = "./tmp/" + name + "_func_" + std::to_string(i) + "_dfg_bb" + std::to_string(bb->get_index()) + "_renamed.dot";

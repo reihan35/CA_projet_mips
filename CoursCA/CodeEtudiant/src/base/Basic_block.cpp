@@ -1,4 +1,4 @@
-  #include <Basic_block.h>
+#include <Basic_block.h>
 
 
 
@@ -586,8 +586,9 @@ void Basic_block::compute_def_liveout(){
 void Basic_block::show_def_liveout(){
   cout << "DEF LIVE OUT: " ;
   for(int i=0; i<NB_REG; i++){
-    if (DefLiveOut[i] != -1)
+    if (DefLiveOut[i] != -1){
       cout << "$"<< i << " definit par l'instruction i" << DefLiveOut[i] << endl; 
+    }
   }
   cout << endl;
   return;
@@ -599,9 +600,66 @@ Utilise comme registres disponibles ceux dont le num�ro est dans la liste para
 
 void Basic_block::reg_rename(list<int> *frees){
   compute_def_liveout();   // definition vivantes en sortie necessaires � connaitre
- 
+  vector<int> n(NB_REG); 
+   for (int i=0; i< NB_REG; i++ ){
+     n[i] = i;
+   }
   /* A REMPLIR */
+  for(int i=0; i<NB_REG; i++){ //On trouve les renommables
+    if ((Def[i] || Use[i] )&& DefLiveOut[i] == -1){ //il y a un doute ici : à la fois def et use ou l'un des deux suffit ? 
+      cout <<"registre n°"<< i << " " <<Def[i] <<" "<< Use[i] << " "<<DefLiveOut[i] <<endl;
+      n[i] = -2;
+    }
+  } 
 
+  vector<int> frees2;        
+  copy(frees->begin(),frees->end(),back_inserter(frees2)); //Convertir liste en vector
+
+  for(int i=0; i<NB_REG; i++){ //Changer le numero des renommable dans n
+    if(n[i]==-2){
+      n[i] = frees2[i];
+    }
+  }
+
+  for (int i = get_nb_inst()-1 ;i >= 0 ;i--){ //renommer les registres avec la valeur stocké dans n
+	  Instruction* instr1 = get_instruction_at_index(i);
+	  OPRegister* op3 = instr1 -> get_reg_dst();
+    OPRegister* op2 = instr1 -> get_reg_src1();
+    OPRegister* op1 = instr1 -> get_reg_src2();
+	  if(op3){
+      op3->set_reg_num(n[op3->get_reg_num()]);
+	  }
+    if(op2){
+      op2->set_reg_num(n[op2->get_reg_num()]);
+	  }
+
+    if(op1){
+      op1->set_reg_num(n[op1->get_reg_num()]);
+	  }
+
+  }
+  
+  /*
+  int nb = 0;
+   for (int i = get_nb_inst()-1 ;i >= 0 ;i--){
+	  Instruction* instr1 = get_instruction_at_index(i);
+	  OPRegister* op3 = instr1 -> get_reg_dst();
+    OPRegister* op2 = instr1 -> get_reg_src1();
+    OPRegister* op1 = instr1 -> get_reg_src2();
+	  if(op3 && Def[op3->get_reg_num()] && Use[op3->get_reg_num()] && DefLiveOut[op3->get_reg_num()] == -1){
+      int i = frees->front();
+      op3->set_reg_num(i);
+	  }
+    if(op2 && Def[op2->get_reg_num()] && Use[op2->get_reg_num()] && DefLiveOut[op2->get_reg_num()] == -1){
+      op2->set_reg_num(frees[nb]);
+	  }
+
+    if(op1 && Def[op1->get_reg_num()] && Use[op1->get_reg_num()] && DefLiveOut[op1->get_reg_num()] == -1){
+      op1->set_reg_num(frees[nb]);
+	  }
+
+    nb++;
+  }*/
 
 
   /* FIN A REMPLIR */
