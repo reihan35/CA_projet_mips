@@ -354,6 +354,7 @@ void add_dep_link(Instruction *pred, Instruction* succ, t_Dep type){
 /* utiliser la fonction add_dep_link ci-dessus qui ajoute � la liste des d�pendances pred et succ une dependance entre 2 instructions */
 
 void Basic_block::comput_pred_succ_dep(){
+  cout << "je suis la" << endl;
   link_instructions(); // essentiel pour avoir un lien entre les instructions
    if (dep_done) return;
    /* A REMPLIR */
@@ -433,7 +434,6 @@ void Basic_block::show_succ_dep(){
 /* calcul le nb de cycles pour executer le BB, on suppose qu'une instruction peut sortir du pipeline � chaque cycle, il faut trouver les cycles de gel induit par les d�pendances */
 
 int Basic_block::nb_cycles(){
-  
   comput_pred_succ_dep(); // besoin d'avoir les d�pendances entre instruction
 
   /* tableau ci-dessous utile pour savoir pour chaque instruction quand elle sort pour en d�duire les cycles qu'elle peut induire avec les instructions qui en d�pendent, initialisation � -1  */
@@ -600,45 +600,47 @@ Utilise comme registres disponibles ceux dont le num�ro est dans la liste para
 
 void Basic_block::reg_rename(list<int> *frees){
   compute_def_liveout();   // definition vivantes en sortie necessaires � connaitre
-  vector<int> n(NB_REG); 
-   for (int i=0; i< NB_REG; i++ ){
-     n[i] = i;
-   }
-  /* A REMPLIR */
-  for(int i=0; i<NB_REG; i++){ //On trouve les renommables
-    if ( Def[i] && DefLiveOut[i] == -1){ //il y a un doute ici : à la fois def et use ou l'un des deux suffit ? 
-      cout <<"registre n°"<< i << " " <<Def[i] <<" "<< Use[i] << " "<<DefLiveOut[i] <<endl;
-      n[i] = -2;
-    }
-  } 
 
-  vector<int> frees2;        
-  copy(frees->begin(),frees->end(),back_inserter(frees2)); //Convertir liste en vector
-
-  int z = 0;
-  for(int i=0; i<NB_REG; i++){ //Changer le numero des renommable dans n
-    if(n[i]==-2){
-      n[i] = frees2[z];
-      z++;
-    }
-  }
-
+  list<Instruction *> working_list;
   for (int i = get_nb_inst()-1 ;i >= 0 ;i--){ //renommer les registres avec la valeur stocké dans n
 	  Instruction* instr1 = get_instruction_at_index(i);
-	  OPRegister* op3 = instr1 -> get_reg_dst();
-    OPRegister* op2 = instr1 -> get_reg_src1();
-    OPRegister* op1 = instr1 -> get_reg_src2();
-	  if(op3){
-      op3->set_reg_num(n[op3->get_reg_num()]);
-	  }
-    if(op2){
-      op2->set_reg_num(n[op2->get_reg_num()]);
-	  }
+	  OPRegister* op = instr1 -> get_reg_dst();
+	  int op_num = -1;
+	  if(op){
+	  	op_num = op->get_reg_num();
+}
+		if(frees->size() == 0) break;
+		if(op && (DefLiveOut[op_num] == -1 || DefLiveOut[op_num] != i)){
+			int renaming_reg = frees->front();
+			frees->pop_front();
+			working_list.push_front(instr1);	
+			while(working_list.size() != 0){
+				instr1 = working_list.front();
+				working_list.pop_front();
+				for(int j = 0; j < instr1->get_nb_succ(); j++){
+					dep *d = instr1->get_succ_dep(j);
+					Instruction *instr_succ = d->inst;
+					if(instr1->is_dep_RAW(instr_succ)){
+						OPRegister* op_src_1 = instr_succ->get_reg_src1();
+						OPRegister* op_src_2 = instr_succ->get_reg_src2();
+						if(op_src_1 && op_src_1->get_reg_num() == op_num){
+							op_src_1->set_reg_num(renaming_reg);
+						}	
+						if(op_src_2 && op_src_2->get_reg_num() == op_num){
+							op_src_2->set_reg_num(renaming_reg);
+						}						
 
-    if(op1){
-      op1->set_reg_num(n[op1->get_reg_num()]);
-	  }
-
+						OPRegister *op_dest = instr_succ->get_reg_dst();
+				
+						if(op_dest && op_dest->get_reg_num() != op_num){
+							working_list.push_front(instr_succ);
+						}
+					}
+				}			
+			}
+			op->set_reg_num(renaming_reg);
+		}
+		
   }
   /* FIN A REMPLIR */
 

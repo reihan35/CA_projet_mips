@@ -97,7 +97,7 @@ int main(int argc, char * argv[]){
 	     /************** REORDONNANCEMENT *****************/ 
 	     
 	     // calcul d'un nouvel ordonnancement	     
-	     d->scheduling(false);
+	     d->scheduling(true);
 	       
 	     cout<<"----  new scheduling: -----"<<endl;
 	     d->display_sheduled_instr();

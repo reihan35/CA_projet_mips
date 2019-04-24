@@ -128,7 +128,7 @@ int main(int argc, char * argv[]){
 	     d->restitute(nullptr, name_f_dfg, true);
 	     
 	     // scheduling sur le code renommé
-	     d->scheduling(false);
+	     d->scheduling(true);
 	     
 	     //cout<<"----  new scheduling: -----"<<endl;
 	     //d->display_sheduled_instr();

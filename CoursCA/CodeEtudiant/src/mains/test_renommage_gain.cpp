@@ -115,6 +115,11 @@ int main(int argc, char * argv[]){
 	     // il faut annuler le calcul des dépendances et le refaire
 	     bb->reset_pred_succ_dep();
 	     bb->comput_pred_succ_dep();
+
+	     Dfg* d2 = new Dfg(bb);
+	     string name_f_dfg2 = "./tmp/" + name + "_func_" + std::to_string(i) + "_dfg_bb_apres_renommage_" + std::to_string(bb->get_index()) + ".dot";
+	     d2->restitute(nullptr, name_f_dfg2, true);
+
 	     
 	     int nbcycles_sched_rename = bb->nb_cycles();
 	     cout<<"----nb_cycles apres renommage : "<< nbcycles_sched_rename <<"   ----"<<endl;
