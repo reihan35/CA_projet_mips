@@ -436,6 +436,7 @@ void Function::compute_live_var(){
    workinglist.push_back(_myBB.back());
    auto bb = workinglist.front();
    bb->LiveOut[2] = true;
+   bb->LiveOut[29] = true;
    bb->LiveOut[31] = true;
 
 

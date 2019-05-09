@@ -447,7 +447,14 @@ int Basic_block::nb_cycles(){
 	   int i_instr = ic->get_index();
 		for(int i = 0; i < ic->get_nb_pred(); i++){
 			int i_pred = (ic->get_pred_dep(i)->inst)->get_index();
-			int new_val = inst_cycle[i_pred] + delai((ic->get_pred_dep(i)->inst)->get_type(),ic->get_type());
+			int new_val;
+			if((ic->get_pred_dep(i)->inst)->is_dep_RAW(ic)){
+
+				new_val = inst_cycle[i_pred] + delai((ic->get_pred_dep(i)->inst)->get_type(),ic->get_type());
+			}
+			else{
+				new_val = inst_cycle[i_pred] + 1;
+			}
 			/*= inst_cycle[i_instr] + delai(ic->get_type(),(ic->get_pred_dep(i)->inst)->get_type());
 			if (inst_cycle[i_pred] > max){
 				inst_cycle[ic->get_index()] = inst_cycle[i_pred];
